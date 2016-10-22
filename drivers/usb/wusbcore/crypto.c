@@ -54,7 +54,7 @@
 #include <linux/usb/wusb.h>
 #include <linux/scatterlist.h>
 
-static int debug_crypto_verify = 0;
+static int debug_crypto_verify;
 
 module_param(debug_crypto_verify, int, 0);
 MODULE_PARM_DESC(debug_crypto_verify, "verify the key generation algorithms");
@@ -229,10 +229,8 @@ static int wusb_ccm_mac(struct crypto_skcipher *tfm_cbc,
 		zero_padding = sizeof(struct aes_ccm_block) - zero_padding;
 	dst_size = blen + sizeof(b0) + sizeof(b1) + zero_padding;
 	dst_buf = kzalloc(dst_size, GFP_KERNEL);
-	if (dst_buf == NULL) {
-		printk(KERN_ERR "E: can't alloc destination buffer\n");
+	if (!dst_buf)
 		goto error_dst_buf;
-	}
 
 	memset(iv, 0, sizeof(iv));
 
@@ -390,7 +388,7 @@ static int wusb_oob_mic_verify(void)
 				    0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
 				    0x2c, 0x2d, 0x2e, 0x2f },
 		.MIC	 	= { 0x75, 0x6a, 0x97, 0x51, 0x0c, 0x8c,
-				    0x14, 0x7b } ,
+				    0x14, 0x7b },
 	};
 	size_t hs_size;
 
@@ -480,7 +478,7 @@ static int wusb_key_derive_verify(void)
 		printk(KERN_ERR "E: keydvt in: key\n");
 		wusb_key_dump(stv_key_a1, sizeof(stv_key_a1));
 		printk(KERN_ERR "E: keydvt in: nonce\n");
-		wusb_key_dump( &stv_keydvt_n_a1, sizeof(stv_keydvt_n_a1));
+		wusb_key_dump(&stv_keydvt_n_a1, sizeof(stv_keydvt_n_a1));
 		printk(KERN_ERR "E: keydvt in: hnonce & dnonce\n");
 		wusb_key_dump(&stv_keydvt_in_a1, sizeof(stv_keydvt_in_a1));
 		printk(KERN_ERR "E: keydvt out: KCK\n");

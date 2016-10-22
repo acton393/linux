@@ -7,6 +7,7 @@
 #include <linux/linkage.h>
 #include <asm/ptrace.h>
 #include <asm/ftrace.h>
+#include <asm/export.h>
 
 
 	.code64
@@ -182,7 +183,8 @@ GLOBAL(ftrace_graph_call)
 	jmp ftrace_stub
 #endif
 
-GLOBAL(ftrace_stub)
+/* This is weak to keep gas from relaxing the jumps */
+WEAK(ftrace_stub)
 	retq
 END(ftrace_caller)
 
@@ -293,6 +295,7 @@ trace:
 	jmp fgraph_trace
 END(function_hook)
 #endif /* CONFIG_DYNAMIC_FTRACE */
+EXPORT_SYMBOL(function_hook)
 #endif /* CONFIG_FUNCTION_TRACER */
 
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
